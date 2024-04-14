@@ -1,4 +1,4 @@
-import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input, useDisclosure } from "@nextui-org/react";
+import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input, useDisclosure, Popover, PopoverContent, PopoverTrigger } from "@nextui-org/react";
 import useProductStore from "../store/store";
 import { useEffect, useState } from "react";
 import { DeleteIcon, EditIcon } from "../assets/icons";
@@ -28,7 +28,7 @@ const columns = [
 ];
 
 export const Pricestable = () => {
-  const { product, productClass, getProduct, editPrice } = useProductStore(); 
+  const { product, productClass, getProduct, editPrice, deletePrice } = useProductStore(); 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [modalData, setModalData] = useState<Price>({ id: 0, price: 0, currency: "", description: "" });
 
@@ -46,9 +46,21 @@ export const Pricestable = () => {
         </span>
       </Tooltip>
       <Tooltip content="Eliminar">
-        <span className="text-lg text-danger cursor-pointer active:opacity-50" onClick={() => handleDelete(item.id)}>
-          <DeleteIcon />
-        </span>
+        <Popover placement="right">
+          <PopoverTrigger>
+            <span className="text-lg text-danger cursor-pointer active:opacity-50">
+              <DeleteIcon />
+            </span>
+          </PopoverTrigger>
+          <PopoverContent>
+          <div className="px-2 py-2">
+            <div className="text-small font-bold mb-2">¿Eliminar este precio?</div>
+            <Button color="danger" onClick={() => handleDelete(item.id)}>
+              Eliminar
+            </Button>
+          </div>
+        </PopoverContent>
+        </Popover>
       </Tooltip>
     </div>
   );
@@ -58,12 +70,12 @@ export const Pricestable = () => {
     onOpen();
   };
 
-  const handleDelete = (priceId: number) => {
-    console.log(priceId)
+  const handleDelete = async (priceId: number) => {
+    await deletePrice(priceId);
   };
 
   const handleModalSubmit = async () => { 
-    await editPrice(modalData); 
+    await editPrice(modalData, product); 
     onClose();
   };
 

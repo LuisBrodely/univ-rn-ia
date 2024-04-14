@@ -13,8 +13,9 @@ type Actions = {
   getProducts: () => Promise<void>;
   getProduct: (productClass: string) => Promise<void>;
   setProductClass: (productClass: string) => void;
-  addPrice: (priceData: Price) => Promise<void>;
-  editPrice: (priceData: Price) => Promise<void>;
+  addPrice: (priceData: Price, product: Product) => Promise<void>;
+  editPrice: (priceData: Price, product: Product) => Promise<void>;
+  deletePrice: (priceId: number) => Promise<void>;
 };
 
 const useProductStore = create<State & Actions>((set) => ({
@@ -46,9 +47,14 @@ const useProductStore = create<State & Actions>((set) => ({
     }
   },
   setProductClass: (productClass: string) => set({ productClass }),
-  addPrice: async (priceData: Price) => {
+  addPrice: async (priceData: Price, product: Product) => {
     try {
-      const response = await axiosInstanceCrud.post<ResponsePrice>('/prices', priceData);
+      const productId = product.id;
+      const addPriceData = {
+        ...priceData,
+        productId
+      };
+      const response = await axiosInstanceCrud.post<ResponsePrice>('/prices', addPriceData);
       const { data } = response.data;
       set((state) => ({
         product: {
@@ -60,9 +66,14 @@ const useProductStore = create<State & Actions>((set) => ({
       console.error('Error adding price:', error);
     }
   },
-  editPrice: async (priceData: Price) => {
+  editPrice: async (priceData: Price, product: Product) => {
     try {
-      const response = await axiosInstanceCrud.put<ResponsePrice>(`/prices/${priceData.id}`, priceData);
+      const productId = product.id;
+      const updatedPriceData = {
+        ...priceData,
+        productId
+      };
+      const response = await axiosInstanceCrud.put<ResponsePrice>(`/prices/${priceData.id}`, updatedPriceData);
       const { data } = response.data;
       set((state) => ({
         product: {
@@ -72,6 +83,19 @@ const useProductStore = create<State & Actions>((set) => ({
       }));
     } catch (error) {
       console.error('Error editing price:', error);
+    }
+  },
+  deletePrice: async (priceId: number) => {
+    try {
+      await axiosInstanceCrud.delete(`/prices/${priceId}`);
+      set((state) => ({
+        product: {
+          ...state.product,
+          prices: state.product.prices.filter((price) => price.id !== priceId)
+        }
+      }));
+    } catch (error) {
+      console.error('Error deleting price:', error);
     }
   }
 }));

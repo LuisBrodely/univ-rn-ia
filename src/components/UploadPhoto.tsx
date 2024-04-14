@@ -70,7 +70,7 @@ export const UploadPhoto = () => {
         />
       )}
       {imageUrl && !productClass && (
-        <Button color="primary" onClick={handleImageSubmit} fullWidth variant="flat">Obtener clase</Button>
+        <Button color="primary" onClick={handleImageSubmit} fullWidth variant="flat">Obtener CLASS</Button>
       )}
       {imageUrl && productClass && (
         <div className="flex items-center justify-center">
