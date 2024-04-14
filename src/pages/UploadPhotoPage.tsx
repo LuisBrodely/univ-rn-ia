@@ -18,6 +18,7 @@ export const UploadPhotoPage = () => {
 
   const handleModalSubmit = async () => { 
     await addPrice(modalData, product); 
+    setModalData({ id: 0, price: 0, currency: "", description: "" })
     onClose();
   };
 

@@ -4,7 +4,7 @@ import useProductStore from "../store/store";
 import axiosInstanceRN from "../api/axiosInstanceRN";
 
 export const UploadPhoto = () => {
-  const { setProductClass, productClass } = useProductStore();
+  const { setProductClass, productClass, product } = useProductStore();
 
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -70,11 +70,13 @@ export const UploadPhoto = () => {
         />
       )}
       {imageUrl && !productClass && (
-        <Button color="primary" onClick={handleImageSubmit} fullWidth variant="flat">Obtener CLASS</Button>
+        <Button className="w-80" color="primary" onClick={handleImageSubmit} fullWidth variant="flat">Obtener CLASS</Button>
       )}
       {imageUrl && productClass && (
-        <div className="flex items-center justify-center">
-          <Chip size='lg' color="secondary" variant="dot">{productClass}</Chip>
+        <div className="w-80 mt-2">
+          <h2 className="font-bold text-5xl mb-3">{productClass}</h2>
+          <Chip color="secondary" size="sm" className="w-80" variant="dot">{ product.description }</Chip>
+          <h3 className="mt-3 text-sm text-slate-300">{ product.details }</h3>
         </div>
       )}
     </div>

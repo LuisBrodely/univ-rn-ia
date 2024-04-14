@@ -1,6 +1,7 @@
-import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input, useDisclosure, Popover, PopoverContent, PopoverTrigger } from "@nextui-org/react";
+import { useState } from "react";
+import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input, useDisclosure } from "@nextui-org/react";
 import useProductStore from "../store/store";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { DeleteIcon, EditIcon } from "../assets/icons";
 import { Price } from '../models/Product';
 
@@ -29,8 +30,10 @@ const columns = [
 
 export const Pricestable = () => {
   const { product, productClass, getProduct, editPrice, deletePrice } = useProductStore(); 
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: isDeleteModalOpen, onOpen: openDeleteModal, onClose: closeDeleteModal } = useDisclosure();
+  const { isOpen: isEditModalOpen, onOpen: openEditModal, onClose: closeEditModal } = useDisclosure();
   const [modalData, setModalData] = useState<Price>({ id: 0, price: 0, currency: "", description: "" });
+  const [selectedPriceId, setSelectedPriceId] = useState<number | null>(null);
 
   useEffect(() => {
     if (productClass) {
@@ -46,37 +49,34 @@ export const Pricestable = () => {
         </span>
       </Tooltip>
       <Tooltip content="Eliminar">
-        <Popover placement="right">
-          <PopoverTrigger>
-            <span className="text-lg text-danger cursor-pointer active:opacity-50">
-              <DeleteIcon />
-            </span>
-          </PopoverTrigger>
-          <PopoverContent>
-          <div className="px-2 py-2">
-            <div className="text-small font-bold mb-2">¿Eliminar este precio?</div>
-            <Button color="danger" onClick={() => handleDelete(item.id)}>
-              Eliminar
-            </Button>
-          </div>
-        </PopoverContent>
-        </Popover>
+        <span className="text-lg text-danger cursor-pointer active:opacity-50" onClick={() => handleDeleteModal(item.id)}>
+          <DeleteIcon />
+        </span>
       </Tooltip>
     </div>
   );
 
   const handleEdit = (price: Price) => {
     setModalData(price);
-    onOpen();
+    openEditModal();
   };
 
-  const handleDelete = async (priceId: number) => {
-    await deletePrice(priceId);
+  const handleDeleteModal = (priceId: number) => {
+    setSelectedPriceId(priceId);
+    openDeleteModal();
+  };
+
+  const handleDelete = async () => {
+    if (selectedPriceId !== null) {
+      await deletePrice(selectedPriceId);
+      setSelectedPriceId(null);
+      closeDeleteModal();
+    }
   };
 
   const handleModalSubmit = async () => { 
     await editPrice(modalData, product); 
-    onClose();
+    closeEditModal();
   };
 
   return (
@@ -97,7 +97,7 @@ export const Pricestable = () => {
           )}
         </TableBody>
       </Table>
-      <Modal isOpen={isOpen} onClose={onClose}>
+      <Modal isOpen={isEditModalOpen} onClose={closeEditModal}>
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1">Editar Precio</ModalHeader>
           <ModalBody>
@@ -105,7 +105,7 @@ export const Pricestable = () => {
               label="Precio"
               type="number"
               placeholder="Precio"
-              value={String(modalData.price)}
+              value={modalData.price.toString()}
               onChange={(e) => setModalData({ ...modalData, price: parseFloat(e.target.value) })}
               variant="bordered"
             />
@@ -125,11 +125,27 @@ export const Pricestable = () => {
             />
           </ModalBody>
           <ModalFooter>
-            <Button color="danger" variant="flat" onClick={onClose}>
+            <Button color="danger" variant="flat" onClick={closeEditModal}>
               Cancelar
             </Button>
             <Button color="primary" onClick={handleModalSubmit}>
               Guardar
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+      <Modal isOpen={isDeleteModalOpen} onClose={closeDeleteModal}>
+        <ModalContent>
+          <ModalHeader className="flex flex-col gap-1">Eliminar Precio</ModalHeader>
+          <ModalBody>
+            ¿Estás seguro de que deseas eliminar este precio?
+          </ModalBody>
+          <ModalFooter>
+            <Button color="danger" variant="flat" onClick={closeDeleteModal}>
+              Cancelar
+            </Button>
+            <Button color="primary" onClick={handleDelete}>
+              Eliminar
             </Button>
           </ModalFooter>
         </ModalContent>
