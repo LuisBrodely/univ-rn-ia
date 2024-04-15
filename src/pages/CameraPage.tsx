@@ -38,7 +38,7 @@ export const CameraPage = () => {
       <div className="pt-3">
         <TopGradient />
         <CustomNavbar />
-        <div className="flex mx-4 sm:mx-10 lg:mx-32 mt-5 gap-6">
+        <div className="mx-4 sm:mx-10 lg:mx-32 mt-5 flex items-center md:items-start gap-6 md:flex-row flex-col">
           <CamaraComponent />
           <div className="w-full">
             <div className="flex justify-between items-center">
