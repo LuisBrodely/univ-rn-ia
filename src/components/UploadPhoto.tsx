@@ -9,15 +9,17 @@ export const UploadPhoto = () => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
 
-  const handleImageUpload = async (event: any) => {
-    const file = event.target.files[0];
-    setImageFile(file);
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setImageFile(file);
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      setImageUrl(reader.result as string);
-    };
-    reader.readAsDataURL(file);
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImageUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleImageSubmit = async () => {
@@ -75,8 +77,8 @@ export const UploadPhoto = () => {
       {imageUrl && productClass && (
         <div className="w-80 mt-2">
           <h2 className="font-bold text-5xl mb-3">{productClass}</h2>
-          <Chip color="secondary" size="sm" className="w-80" variant="dot">{ product.description }</Chip>
-          <h3 className="mt-3 text-sm text-slate-300">{ product.details }</h3>
+          <Chip color="secondary" size="sm" className="w-80" variant="dot">{product.description}</Chip>
+          <h3 className="mt-3 text-sm text-slate-300">{product.details}</h3>
         </div>
       )}
     </div>
